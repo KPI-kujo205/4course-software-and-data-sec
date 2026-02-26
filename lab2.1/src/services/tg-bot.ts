@@ -29,3 +29,7 @@ bot.catch((err) => {
 });
 
 bot.start();
+
+export async function sendMessageToUser(tg_user_id: number, message: string) {
+	await bot.api.sendMessage(tg_user_id, message);
+}

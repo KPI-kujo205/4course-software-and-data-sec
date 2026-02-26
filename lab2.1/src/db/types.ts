@@ -27,7 +27,7 @@ export interface VerificationCodes {
   code: string;
   expires_at: Timestamp;
   id: Generated<number>;
-  phone: string;
+  tg_username: string;
 }
 
 export interface DB {

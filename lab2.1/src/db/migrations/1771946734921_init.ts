@@ -1,4 +1,4 @@
-import { type Kysely, sql } from 'kysely';
+import { type Kysely, sql } from "kysely";
 
 export async function up(db: Kysely<never>): Promise<void> {
 	await sql`
@@ -14,7 +14,7 @@ export async function up(db: Kysely<never>): Promise<void> {
 	-- Таблиця для тимчасових кодів верифікації (OTP)
 		CREATE TABLE verification_codes (
 			id SERIAL PRIMARY KEY,
-			phone VARCHAR(20) NOT NULL,
+      tg_username VARCHAR(255) NOT NULL,
 			code VARCHAR(6) NOT NULL,
 			expires_at TIMESTAMP NOT NULL
 		);
