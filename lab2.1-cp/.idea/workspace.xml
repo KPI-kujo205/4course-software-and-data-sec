@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="3d25e3c8-a68a-4b74-b7b0-9fccd4a1cdad" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/../lab2.1/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/../lab2.1/.gitignore" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../lab2.1/.npmrc" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../lab2.1/.prettierignore" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../lab2.1/.prettierrc" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../lab2.1/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/../lab2.1/README.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../lab2.1/eslint.config.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../lab2.1/kysely.config.ts" beforeDir="false" afterPath="$PROJECT_DIR$/../lab2.1/kysely.config.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../lab2.1/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/../lab2.1/package.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../lab2.1/pnpm-lock.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/../lab2.1/pnpm-lock.yaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../lab2.1/pnpm-workspace.yaml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../lab2.1/src/app.d.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../lab2.1/src/app.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../lab2.1/src/lib/assets/favicon.svg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../lab2.1/src/lib/index.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../lab2.1/src/lib/server/db/index.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../lab2.1/src/lib/server/db/migrations/1771946734921_init.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../lab2.1/src/lib/server/db/types.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../lab2.1/src/routes/+page.svelte" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../lab2.1/static/robots.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../lab2.1/svelte.config.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../lab2.1/tsconfig.json" beforeDir="false" afterPath="$PROJECT_DIR$/../lab2.1/tsconfig.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../lab2.1/vite.config.ts" beforeDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="tsconfig.json" />
+        <option value="TypeScript File" />
+      </list>
+    </option>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/.." />
+  </component>
+  <component name="GitHubPullRequestSearchHistory">{
+  &quot;lastFilter&quot;: {
+    &quot;state&quot;: &quot;OPEN&quot;,
+    &quot;assignee&quot;: &quot;kujo205&quot;
+  }
+}</component>
+  <component name="GithubPullRequestsUISettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;url&quot;: &quot;git@github.com:KPI-kujo205/4course-software-and-data-sec.git&quot;,
+    &quot;accountId&quot;: &quot;f1510f3c-7570-4e9d-bf72-6fcd2dee0afa&quot;
+  }
+}</component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 3
+}</component>
+  <component name="ProjectId" id="3AAipDVMMS8HXdXRRS4qiOU0qXB" />
+  <component name="ProjectViewState">
+    <option name="autoscrollFromSource" value="true" />
+    <option name="foldersAlwaysOnTop" value="false" />
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="openDirectoriesWithSingleClick" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
+    &quot;last_opened_file_path&quot;: &quot;/Users/i.kuts/studying_projects/4course-software-and-data-sec/lab2.1-cp&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;pnpm&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;Settings.Biome&quot;,
+    &quot;ts.external.directory.path&quot;: &quot;/Users/i.kuts/studying_projects/4course-software-and-data-sec/lab2.1-cp/node_modules/typescript/lib&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  },
+  &quot;keyToStringList&quot;: {
+    &quot;DatabaseDriversLRU&quot;: [
+      &quot;postgresql&quot;
+    ]
+  }
+}</component>
+  <component name="SharedIndexes">
+    <attachedChunks>
+      <set>
+        <option value="bundled-js-predefined-d6986cc7102b-a71380e98a7c-JavaScript-WS-252.28238.10" />
+      </set>
+    </attachedChunks>
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="3d25e3c8-a68a-4b74-b7b0-9fccd4a1cdad" name="Changes" comment="" />
+      <created>1772041956744</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1772041956744</updated>
+      <workItem from="1772041957926" duration="352000" />
+      <workItem from="1772042326911" duration="270000" />
+      <workItem from="1772042618387" duration="108000" />
+      <workItem from="1772042748694" duration="31000" />
+      <workItem from="1772042835504" duration="1456000" />
+      <workItem from="1772062093067" duration="2302000" />
+    </task>
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+  <component name="XSLT-Support.FileAssociations.UIState">
+    <expand />
+    <select />
+  </component>
+  <component name="github-copilot-workspace">
+    <instructionFileLocations>
+      <option value=".github/instructions" />
+    </instructionFileLocations>
+    <promptFileLocations>
+      <option value=".github/prompts" />
+    </promptFileLocations>
+  </component>
+</project>

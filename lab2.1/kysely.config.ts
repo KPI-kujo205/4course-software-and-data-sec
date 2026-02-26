@@ -13,6 +13,6 @@ export default defineConfig({
 		})
 	}),
 	migrations: {
-		migrationFolder: 'src/lib/server/db/migrations'
+		migrationFolder: 'src/db/migrations'
 	}
 });
