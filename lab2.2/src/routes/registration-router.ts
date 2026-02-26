@@ -79,11 +79,14 @@ registrationRouter
     async (c) => {
       const hashedPassword = await hashPassword(c.req.valid("json").password);
 
+      const body = c.req.valid("json");
+
       const res = await createUser({
         tg_username: c.get("reg_username"),
         reg_2fa_secret: c.get("reg_2fa_secret"),
         password_hash: hashedPassword,
-        two_fa_token: c.req.valid("json").two_fa_token,
+        two_fa_token: body.two_fa_token,
+        pin: body.pin,
       });
 
       if (res.isOk()) {

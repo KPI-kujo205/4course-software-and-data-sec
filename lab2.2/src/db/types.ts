@@ -18,6 +18,7 @@ export interface Users {
   id: Generated<number>;
   is_verified: Generated<boolean | null>;
   password_hash: string | null;
+  pin: string | null;
   tg_user_id: Int8 | null;
   tg_username: string;
   two_fa_secret: string | null;

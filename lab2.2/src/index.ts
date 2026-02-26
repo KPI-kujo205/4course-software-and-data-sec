@@ -2,6 +2,7 @@ import "dotenv/config";
 import {serve} from "@hono/node-server";
 import {Hono} from "hono";
 import "@/services/tg-bot.js";
+import {authenticationRouter} from "@/routes/authentication-route";
 import {registrationRouter} from "@/routes/registration-router";
 
 type Variables = {
@@ -22,6 +23,8 @@ app.get("/info", (c) => {
 });
 
 app.route("/register", registrationRouter);
+
+app.route("/auth", authenticationRouter);
 
 serve(
   {
