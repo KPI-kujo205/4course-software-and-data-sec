@@ -1,0 +1,16 @@
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: messenger-db
+    restart: always
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: messenger
+    ports:
+      - "5430:5432"
+    volumes:
+      - lab2.1_data:/var/lib/postgresql/data
+
+volumes:
+  lab2.1_data:
