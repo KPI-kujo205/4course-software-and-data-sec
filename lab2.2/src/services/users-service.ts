@@ -1,6 +1,7 @@
 import {err, fromPromise, ok, ResultAsync} from "neverthrow";
 import {verify} from "otplib";
 import {db} from "@/db";
+import type {VerificationCodeType} from "@/db/types";
 import {generateOTP} from "@/utils/otp";
 
 export function rememberUserIdAndTag(
@@ -34,13 +35,18 @@ export function rememberUserIdAndTag(
   });
 }
 
-export function verifyOtpInDb(tg_username: string, code: string) {
+export function verifyOtpInDb(
+  tg_username: string,
+  code: string,
+  codeType: VerificationCodeType,
+) {
   return ResultAsync.fromPromise(
     db
       .selectFrom("verification_codes")
       .selectAll()
       .where("tg_username", "=", tg_username)
       .where("code", "=", code)
+      .where("type", "=", codeType)
       .where("expires_at", ">", new Date())
       .executeTakeFirst(),
     (e) => new Error(`DATABASE_ERROR: ${(e as Error).message}`),
@@ -68,7 +74,10 @@ export function getTgUserIdByUsername(tg_username: string) {
   });
 }
 
-export function generateOtpStoreInDb(tg_username: string) {
+export function generateOtpStoreInDb(
+  tg_username: string,
+  codeType: VerificationCodeType,
+) {
   const otp = generateOTP();
 
   return ResultAsync.fromPromise(
@@ -78,6 +87,7 @@ export function generateOtpStoreInDb(tg_username: string) {
         tg_username,
         code: otp,
         expires_at: new Date(Date.now() + 10 * 60 * 1000), // 10 mins
+        type: codeType,
       })
       .execute(),
     (e) => new Error(`DATABASE_ERROR: ${(e as Error).message}`),

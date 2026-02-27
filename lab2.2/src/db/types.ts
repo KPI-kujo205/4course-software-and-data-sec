@@ -13,6 +13,8 @@ export type Int8 = ColumnType<string, bigint | number | string, bigint | number 
 
 export type Timestamp = ColumnType<Date, Date | string, Date | string>;
 
+export type VerificationCodeType = "reset" | "signup";
+
 export interface Users {
   created_at: Generated<Timestamp | null>;
   id: Generated<number>;
@@ -29,6 +31,7 @@ export interface VerificationCodes {
   expires_at: Timestamp;
   id: Generated<number>;
   tg_username: string;
+  type: Generated<VerificationCodeType>;
 }
 
 export interface DB {

@@ -37,7 +37,7 @@ registrationRouter
       );
     }
 
-    const otpRes = await generateOtpStoreInDb(tg_username);
+    const otpRes = await generateOtpStoreInDb(tg_username, "signup");
 
     if (otpRes.isErr()) {
       return c.json({error: "Failed to generate OTP, try later"}, 500);
@@ -55,7 +55,7 @@ registrationRouter
   .post("/step2", zodValidatorMiddleware("json", Step2Schema), async (c) => {
     const {tg_username, code} = c.req.valid("json");
 
-    const verificationResult = await verifyOtpInDb(tg_username, code);
+    const verificationResult = await verifyOtpInDb(tg_username, code, "signup");
 
     if (verificationResult.isErr()) {
       return c.json({error: verificationResult.error}, 400);
