@@ -59,7 +59,38 @@ authenticationRouter
     zodValidatorMiddleware("json", PinSchema),
     verifySession,
     async (c) => {
-      return c.text("lol");
+      const pin = c.req.valid("json").pin;
+
+      const userRes = await getUserByUsername(c.get("session").tg_username);
+
+      if (userRes.isErr()) return c.json({error: "User not found"}, 404);
+
+      if (!userRes.value.pin)
+        return c.json({
+          error: "PIN not set for user, please contact support",
+        });
+
+      const pinCorrect = await verifyPassword(pin, userRes?.value?.pin);
+
+      if (!pinCorrect) {
+        return c.json(
+          {
+            error: "Incorrect PIN",
+          },
+          403,
+        );
+      }
+
+      const sessionToken = await createSessionToken(
+        userRes.value.id,
+        userRes.value.tg_username,
+      );
+
+      if (sessionToken.isOk()) {
+        return c.json({
+          token: sessionToken.value,
+        });
+      }
     },
   )
   .get("/me", verifySession, async (c) => {

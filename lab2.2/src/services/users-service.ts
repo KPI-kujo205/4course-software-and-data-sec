@@ -146,6 +146,7 @@ export async function getUserByUsername(tg_username: string) {
         "password_hash",
         "two_fa_secret",
         "is_verified",
+        "pin",
       ])
       .where("tg_username", "=", tg_username)
       .executeTakeFirst(),

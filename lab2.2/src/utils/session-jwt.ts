@@ -4,7 +4,7 @@ import {err, ok, ResultAsync} from "neverthrow";
 import {env} from "@/utils/env";
 
 export interface SessionPayload extends JWTPayload {
-  user_id: string;
+  user_id: string | number;
   tg_username: string;
   last_pin_at: number; // last access pin timestamp
   exp: number;
@@ -13,7 +13,10 @@ export interface SessionPayload extends JWTPayload {
 
 const ALGORITHM = "HS256";
 
-export function createSessionToken(user_id: string, tg_username: string) {
+export function createSessionToken(
+  user_id: string | number,
+  tg_username: string,
+) {
   const payload = {
     user_id,
     tg_username,
