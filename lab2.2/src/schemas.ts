@@ -36,7 +36,7 @@ export const PinSchema = z.object({
 
 export const ResetPasswordSchema = z.object({
   tg_username: z.string().min(1),
-  otp_code: z.string().length(4, "OTP must be 4 digits"), // або 6, залежить від твого генератора
+  otp_code: z.string().length(6, "OTP must be 4 digits"), // або 6, залежить від твого генератора
   pin: z.string().length(4, "PIN must be 4 digits"),
   new_password: z.string().min(8, "New password too short"),
 });

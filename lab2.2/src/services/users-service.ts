@@ -2,6 +2,7 @@ import {err, fromPromise, ok, ResultAsync} from "neverthrow";
 import {verify} from "otplib";
 import {db} from "@/db";
 import type {VerificationCodeType} from "@/db/types";
+import {hashPassword} from "@/utils/bcrypt";
 import {generateOTP} from "@/utils/otp";
 
 export function rememberUserIdAndTag(
@@ -168,4 +169,27 @@ export async function getUserByUsername(tg_username: string) {
     }
     return ok(record);
   });
+}
+
+interface ChangePasswordInput {
+  userId: number;
+  newPasswordUnhashed: string;
+}
+
+export async function changeUserPassword(input: ChangePasswordInput) {
+  const passwordHash = await hashPassword(input.newPasswordUnhashed);
+
+  return ResultAsync.fromPromise(
+    db
+      .updateTable("users")
+      .set({
+        password_hash: passwordHash,
+      })
+      .where("id", "=", input.userId)
+      .executeTakeFirstOrThrow(), // Викине помилку, якщо юзера не знайдено
+    (error) => {
+      console.error(`Failed to change password for a user:`, error);
+      return new Error("DATABASE_UPDATE_FAILED");
+    },
+  );
 }

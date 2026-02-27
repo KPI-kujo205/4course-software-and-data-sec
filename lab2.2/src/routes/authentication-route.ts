@@ -10,8 +10,10 @@ import {
 } from "@/schemas";
 import {sendMessageToUser} from "@/services/tg-bot";
 import {
+  changeUserPassword,
   generateOtpStoreInDb,
   getUserByUsername,
+  verifyOtpInDb,
 } from "@/services/users-service";
 import {verifyPassword} from "@/utils/bcrypt";
 import {createSessionToken, type SessionPayload} from "@/utils/session-jwt";
@@ -140,6 +142,47 @@ authenticationRouter
     "/recover-password",
     zodValidatorMiddleware("json", ResetPasswordSchema),
     async (c) => {
+      const body = c.req.valid("json");
+      const userRes = await getUserByUsername(body.tg_username);
+
+      if (userRes.isErr()) {
+        return c.json({error: "User not found"}, 400);
+      }
+
+      const verificationResult = await verifyOtpInDb(
+        body.tg_username,
+        body.otp_code,
+        "reset",
+      );
+
+      const pinCorrect = await verifyPassword(body.pin, userRes.value.pin!);
+
+      if (!pinCorrect) {
+        return c.json(
+          {
+            error: "Incorrect PIN",
+          },
+          403,
+        );
+      }
+
+      if (verificationResult.isErr()) {
+        return c.json({error: verificationResult.error}, 400);
+      }
+
+      const res = await changeUserPassword({
+        userId: userRes.value.id,
+        newPasswordUnhashed: body.new_password,
+      });
+
+      if (res.isErr()) {
+        return c.json({error: res.error}, 500);
+      } else {
+        return c.json({
+          success: true,
+          message: "Password changed successfully",
+        });
+      }
     },
   );
 
