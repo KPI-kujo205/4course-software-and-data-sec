@@ -1,4 +1,5 @@
 import {Hono} from "hono";
+import {verify} from "hono/jwt";
 import {verifyRegistration} from "@/middlewares/registration-authorization-middleware";
 import zodValidatorMiddleware from "@/middlewares/zod-validator-middleware";
 import {Step1Schema, Step2Schema, Step3Schema} from "@/schemas";
@@ -77,16 +78,17 @@ registrationRouter
     verifyRegistration,
     zodValidatorMiddleware("json", Step3Schema),
     async (c) => {
-      const hashedPassword = await hashPassword(c.req.valid("json").password);
-
       const body = c.req.valid("json");
+
+      const hashedPassword = await hashPassword(body.password);
+      const hashedPin = await hashPassword(body.pin);
 
       const res = await createUser({
         tg_username: c.get("reg_username"),
         reg_2fa_secret: c.get("reg_2fa_secret"),
         password_hash: hashedPassword,
         two_fa_token: body.two_fa_token,
-        pin: body.pin,
+        pin: hashedPin,
       });
 
       if (res.isOk()) {

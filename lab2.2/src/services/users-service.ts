@@ -95,12 +95,12 @@ interface TCreateUser {
 }
 
 export async function createUser(inputs: TCreateUser) {
-  const isTokenValid = verify({
+  const {valid} = await verify({
     secret: inputs.reg_2fa_secret,
     token: inputs.two_fa_token,
   });
 
-  if (!isTokenValid) {
+  if (!valid) {
     console.error("2FA verification failed for user:", inputs.tg_username);
     return err("Wrong 2FA. Check app and try again.");
   }
@@ -134,4 +134,20 @@ export async function createUser(inputs: TCreateUser) {
       return error;
     },
   );
+}
+
+export async function getUserByUsername(tg_username: string) {
+  return ResultAsync.fromPromise(
+    db
+      .selectFrom("users")
+      .select(["tg_username", "password_hash", "two_fa_secret", "is_verified"])
+      .where("tg_username", "=", tg_username)
+      .executeTakeFirst(),
+    (e) => new Error(`DATABASE_ERROR: ${(e as Error).message}`),
+  ).andThen((record) => {
+    if (!record) {
+      return err("User not found");
+    }
+    return ok(record);
+  });
 }
