@@ -1,7 +1,7 @@
 import type {Context, Next} from "hono";
 import {decodeSessionToken, type SessionPayload} from "@/utils/session-jwt";
 
-const PIN_TIMEOUT_SECONDS = 10 * 60; // 10 mins
+const PIN_TIMEOUT_SECONDS = 0.5 * 60; // 30 secs
 
 type Variables = {
   session: SessionPayload;
@@ -12,7 +12,6 @@ export const verifySession = async (
   next: Next,
 ) => {
   const authHeader = c.req.header("Authorization");
-
   const token = authHeader?.startsWith("Bearer ")
     ? authHeader.split(" ")[1]
     : null;
@@ -23,27 +22,26 @@ export const verifySession = async (
 
   const result = await decodeSessionToken(token);
 
-  return result.match(
-    async (payload) => {
-      const currentTime = Math.floor(Date.now() / 1000);
-      const timeSinceLastPin = currentTime - payload.last_pin_at;
+  if (result.isErr()) {
+    console.error(result.error);
+    return c.json({error: "Invalid or expired session"}, 401);
+  }
 
-      // Перевірка умови "кожні N часу"
-      if (timeSinceLastPin > PIN_TIMEOUT_SECONDS) {
-        return c.json(
-          {
-            error: "PIN_REQUIRED",
-            message: "Time limit exceeded. Please verify your PIN.",
-          },
-          403,
-        );
-      }
+  const payload = result.value;
+  const currentTime = Math.floor(Date.now() / 1000);
+  const timeSinceLastPin = currentTime - payload.last_pin_at;
 
-      c.set("session", payload);
-      await next();
-    },
-    (error) => {
-      return c.json({error: "Invalid or expired session"}, 401);
-    },
-  );
+  if (timeSinceLastPin > PIN_TIMEOUT_SECONDS) {
+    return c.json(
+      {
+        error: "PIN_REQUIRED",
+        message: "Time limit exceeded. Please verify your PIN.",
+      },
+      403,
+    );
+  }
+
+  // 3. Успіх: встановлюємо сесію та йдемо далі
+  c.set("session", payload);
+  await next();
 };

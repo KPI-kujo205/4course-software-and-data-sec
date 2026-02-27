@@ -61,6 +61,12 @@ authenticationRouter
     async (c) => {
       return c.text("lol");
     },
-  );
+  )
+  .get("/me", verifySession, async (c) => {
+    return c.text(
+      "Hello, you entered protected route! Your session info: \n" +
+      JSON.stringify(c.get("session")),
+    );
+  });
 
 export {authenticationRouter};

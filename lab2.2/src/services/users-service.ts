@@ -140,7 +140,13 @@ export async function getUserByUsername(tg_username: string) {
   return ResultAsync.fromPromise(
     db
       .selectFrom("users")
-      .select(["tg_username", "password_hash", "two_fa_secret", "is_verified"])
+      .select([
+        "id",
+        "tg_username",
+        "password_hash",
+        "two_fa_secret",
+        "is_verified",
+      ])
       .where("tg_username", "=", tg_username)
       .executeTakeFirst(),
     (e) => new Error(`DATABASE_ERROR: ${(e as Error).message}`),

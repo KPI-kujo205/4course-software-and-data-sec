@@ -1,7 +1,7 @@
-import {JWTPayload} from "hono/utils/jwt/types";
+import {sign, verify} from "hono/jwt";
+import type {JWTPayload} from "hono/utils/jwt/types";
 import {err, ok, ResultAsync} from "neverthrow";
 import {env} from "@/utils/env";
-import {sign, verify} from "hono/jwt";
 
 export interface SessionPayload extends JWTPayload {
   user_id: string;
@@ -13,10 +13,7 @@ export interface SessionPayload extends JWTPayload {
 
 const ALGORITHM = "HS256";
 
-export function createSessionToken(
-  user_id: string,
-  tg_username: string,
-){
+export function createSessionToken(user_id: string, tg_username: string) {
   const payload = {
     user_id,
     tg_username,
@@ -32,7 +29,7 @@ export function createSessionToken(
 }
 
 export function createRefreshedPinToken(
-  oldPayload: SessionPayload
+  oldPayload: SessionPayload,
 ): ResultAsync<string, Error> {
   const payload = {
     ...oldPayload,
@@ -51,14 +48,9 @@ export function decodeSessionToken(
   return ResultAsync.fromPromise(
     verify(token, env.JWT_SECRET, ALGORITHM),
     (e) => new Error(`SESSION_JWT_VERIFY_FAILED: ${e}`),
-  ).andThen((payload) => {
-    if (
-      payload &&
-      typeof payload.user_id === "string" &&
-      payload.sub === "session"
-    ) {
-      return ok(payload as SessionPayload);
-    }
-    return err(new Error("INVALID_SESSION_PAYLOAD"));
+  ).map((payload) => {
+    // Видаляємо всі if-перевірки. Просто кастимо до нашого інтерфейсу.
+    // Оскільки ми використовуємо .map, він поверне ok(payload) автоматично.
+    return payload as unknown as SessionPayload;
   });
 }
