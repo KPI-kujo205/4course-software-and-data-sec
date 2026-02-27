@@ -40,3 +40,12 @@ export const ResetPasswordSchema = z.object({
   pin: z.string().length(4, "PIN must be 4 digits"),
   new_password: z.string().min(8, "New password too short"),
 });
+
+export const SendOtpSchema = z.object({
+  tg_username: z
+    .string()
+    .min(1, "Username is required")
+    .trim()
+    // Якщо хочеш суворіше, можна додати regex для нікнеймів Telegram
+    .regex(/^[a-zA-Z0-9_]+$/, "Invalid Telegram username format"),
+});

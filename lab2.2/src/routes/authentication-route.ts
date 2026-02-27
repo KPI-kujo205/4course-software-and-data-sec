@@ -2,8 +2,17 @@ import {Hono} from "hono";
 import {verify} from "otplib";
 import {verifySession} from "@/middlewares/session-authorization-middleware";
 import zodValidatorMiddleware from "@/middlewares/zod-validator-middleware";
-import {LoginSchema, PinSchema} from "@/schemas";
-import {getUserByUsername} from "@/services/users-service";
+import {
+  LoginSchema,
+  PinSchema,
+  ResetPasswordSchema,
+  SendOtpSchema,
+} from "@/schemas";
+import {sendMessageToUser} from "@/services/tg-bot";
+import {
+  generateOtpStoreInDb,
+  getUserByUsername,
+} from "@/services/users-service";
 import {verifyPassword} from "@/utils/bcrypt";
 import {createSessionToken, type SessionPayload} from "@/utils/session-jwt";
 
@@ -98,6 +107,40 @@ authenticationRouter
       "Hello, you entered protected route! Your session info: \n" +
       JSON.stringify(c.get("session")),
     );
-  });
+  })
+  .post(
+    "/send-recovery-opt",
+    zodValidatorMiddleware("json", SendOtpSchema),
+    async (c) => {
+      const tgUsername = c.req.valid("json").tg_username;
+
+      const userRes = await getUserByUsername(tgUsername);
+
+      const otpRes = await generateOtpStoreInDb(tgUsername, "reset");
+
+      if (otpRes.isErr()) {
+        return c.json({error: "Failed to generate OTP, try later"}, 500);
+      }
+
+      if (userRes.isErr()) {
+        return c.json({error: "User not found"}, 400);
+      }
+
+      await sendMessageToUser(
+        Number(userRes.value.tg_user_id),
+        `Your password recovery code: ${otpRes.value}\n\nIt expires in 10 minutes. If you didn't initialize recovery process please follow a link!`,
+      );
+
+      return c.json({
+        success: true,
+      });
+    },
+  )
+  .post(
+    "/recover-password",
+    zodValidatorMiddleware("json", ResetPasswordSchema),
+    async (c) => {
+    },
+  );
 
 export {authenticationRouter};
