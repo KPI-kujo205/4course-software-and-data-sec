@@ -57,3 +57,16 @@ services:
       - 6003:6003
     depends_on:
       - ca_server
+  node_e:
+    build:
+      context: .
+      dockerfile: ./src/node/Dockerfile
+    env_file:
+      - .shared_env
+    environment:
+      NODE_ID: "e"
+      NODE_PORT: 6004
+    ports:
+      - 6004:6004
+    depends_on:
+      - ca_server
