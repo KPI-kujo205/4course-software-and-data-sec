@@ -1,0 +1,22 @@
+{
+  "name": "lab7",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "start": "",
+    "start-node": "bun run src/node/index.ts",
+    "start-ca": "bun run src/ca_server/index.ts",
+    "initiate-request": "bun run src/initiate-request.ts"
+  },
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "devDependencies": {
+    "@types/node": "^25.0.3",
+    "@types/pem": "^1.14.4",
+    "bun-types": "^1.3.5"
+  },
+  "dependencies": {
+    "pem": "^1.14.8"
+  }
+}

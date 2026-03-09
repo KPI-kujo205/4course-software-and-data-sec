@@ -1,0 +1,59 @@
+services:
+  ca_server:
+    build:
+      context: .
+      dockerfile: ./src/ca_server/Dockerfile
+    env_file:
+      - .shared_env
+  node_a:
+    build:
+      context: .
+      dockerfile: ./src/node/Dockerfile
+    env_file:
+      - .shared_env
+    environment:
+      NODE_ID: "a"
+      NODE_PORT: 6000
+    ports:
+      - 6000:6000
+    depends_on:
+      - ca_server
+  node_b:
+    build:
+      context: .
+      dockerfile: ./src/node/Dockerfile
+    env_file:
+      - .shared_env
+    environment:
+      NODE_ID: "b"
+      NODE_PORT: 6001
+    ports:
+      - 6001:6001
+    depends_on:
+      - ca_server
+  node_c:
+    build:
+      context: .
+      dockerfile: ./src/node/Dockerfile
+    env_file:
+      - .shared_env
+    environment:
+      NODE_ID: "c"
+      NODE_PORT: 6002
+    ports:
+      - 6002:6002
+    depends_on:
+      - ca_server
+  node_d:
+    build:
+      context: .
+      dockerfile: ./src/node/Dockerfile
+    env_file:
+      - .shared_env
+    environment:
+      NODE_ID: "d"
+      NODE_PORT: 6003
+    ports:
+      - 6003:6003
+    depends_on:
+      - ca_server
