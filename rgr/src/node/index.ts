@@ -5,6 +5,8 @@ import {CAApi} from "@/node/caApi";
 import {NetworkPacket, PacketType} from '@/node/types';
 import {assert} from "@/helpers/assert";
 import {PacketAssembler} from "@/node/PacketAssembler";
+import {NodeFSM} from "@/node/NodeFSM";
+import {PoissonLoss} from "@/node/PoissonLoss";
 
 // Types for Advanced TLS Handshake
 type HandshakeStep = 'CLIENT_HELLO' | 'SERVER_HELLO' | 'KEY_EXCHANGE' | 'FINISHED';
@@ -19,6 +21,8 @@ export class Node {
   private readonly logger: Logger;
   private readonly ca: CAApi;
   private readonly assembler = new PacketAssembler();
+  private readonly fsm = new NodeFSM();
+  private readonly poissonLoss: PoissonLoss;
   private certData?: NodeCert;
 
   private sessionKeys = new Map<string, Buffer>(); // TargetID -> AES Key
@@ -28,6 +32,9 @@ export class Node {
   constructor(private readonly config: NodeConfig) {
     this.logger = new Logger(config);
     this.ca = new CAApi(this.config.caUrl);
+    this.poissonLoss = new PoissonLoss(this.config.poissonLambda);
+    this.logger.log(`[FSM] Initial state: ${this.fsm.getState()}`);
+    this.logger.log(`[POISSON] λ=${this.config.poissonLambda} → drop probability ≈ ${(this.poissonLoss.dropProbability() * 100).toFixed(1)}%`);
     this.init();
   }
 
@@ -71,6 +78,15 @@ export class Node {
       return this.onPacketReceived(packet);
     }
 
+    if (url.pathname === "/status" && req.method === "GET") {
+      return Response.json({
+        nodeId: this.config.nodeId,
+        state: this.fsm.getState(),
+        poissonLambda: this.config.poissonLambda,
+        dropProbability: `${(this.poissonLoss.dropProbability() * 100).toFixed(1)}%`,
+      });
+    }
+
     if (url.pathname === "/initiate" && req.method === "POST") {
       const {target, data, isBroadcast} = await req.json();
 
@@ -86,33 +102,58 @@ export class Node {
     return new Response("Not Found", {status: 404});
   }
 
-  private async onPacketReceived(packet: NetworkPacket): Response {
+  private async onPacketReceived(packet: NetworkPacket): Promise<Response> {
+    // --- Poisson loss simulation on inbound packets ---
+    if (this.poissonLoss.shouldDrop()) {
+      this.logger.log(`[POISSON DROP] Packet from ${packet.header.src} to ${packet.header.dest} idx=${packet.header.packetIdx}/${packet.header.total - 1} dropped (λ=${this.config.poissonLambda})`);
+      // Return OK to the sender so it doesn't know the packet was lost
+      return new Response("OK");
+    }
+
     const isForMe = packet.header.dest === this.config.nodeId || packet.header.dest === 'ALL';
 
     this.logger.log(`[RECEIVE] Packet from ${packet.header.src} to ${packet.header.dest} (type: ${packet.header.type}, isForMe: ${isForMe})`);
 
+    // Transition to RECEIVING state
+    this.fsm.startReceiving();
+    this.logger.log(`[FSM] State → ${this.fsm.getState()}`);
+
     if (isForMe) {
       this.processInbound(packet);
       // If it's a broadcast, we still need to forward it to others
-      if (packet.header.dest === 'ALL') return this.forward(packet);
+      if (packet.header.dest === 'ALL') {
+        const result = await this.forward(packet);
+        this.fsm.finish();
+        this.logger.log(`[FSM] State → ${this.fsm.getState()}`);
+        return result;
+      }
+      this.fsm.finish();
+      this.logger.log(`[FSM] State → ${this.fsm.getState()}`);
       return new Response("Received");
     }
 
-    return this.forward(packet);
+    // Packet is for someone else — relay (hub behaviour)
+    this.logger.log(`[FSM] Relaying packet → transitioning to TRANSMITTING`);
+    this.fsm.startTransmitting();
+    this.logger.log(`[FSM] State → ${this.fsm.getState()}`);
+    const result = await this.forward(packet);
+    this.fsm.finish();
+    this.logger.log(`[FSM] State → ${this.fsm.getState()}`);
+    return result;
   }
 
-  private async forward(packet: NetworkPacket): Response {
+  private async forward(packet: NetworkPacket): Promise<Response> {
     if (packet.header.dest === 'ALL') {
       if (this.seenBroadcasts.has(packet.header.msgId)) {
         return new Response("Already Processed");
       }
       this.seenBroadcasts.add(packet.header.msgId);
 
-      //  Broadcast forwarding - надсилаємо до всіх сусідів (крім відправника)
+      //  Broadcast forwarding — send to all neighbours (except the sender)
       const neighbours = this.config.topology.getNeighbours();
 
       for (const neighbour of neighbours) {
-        // Не надсилаємо назад до відправника
+        // Do not send back to the originator
         if (neighbour === packet.header.src) continue;
 
         const nextHopUrl = this.config.topology.getNextHopUrl(neighbour);
@@ -134,7 +175,7 @@ export class Node {
       return new Response("Broadcast Forwarded");
     }
 
-    //  Unicast forwarding (звичайна маршрутизація)
+    //  Unicast forwarding (standard routing)
     if (packet.header.type === "DATA") {
       this.logger.log(`[SNOOPING ATTEMPT] Packet body (encrypted): ${packet.body.substring(0, 50)}...`);
     }
@@ -290,16 +331,22 @@ export class Node {
     const msgId = existingMsgId || crypto.randomUUID();
     const total = Math.ceil(data.length / MTU);
 
+    // Transition FSM to TRANSMITTING
+    this.fsm.startTransmitting();
+    this.logger.log(`[FSM] State → ${this.fsm.getState()} (sending ${total} fragment(s) to ${target})`);
+
     // broadcast
     if (target === 'ALL') {
       const neighbours = this.config.topology.getNeighbours();
 
       if (!neighbours || neighbours.length === 0) {
         this.logger.log(`No neighbours to broadcast to`);
+        this.fsm.finish();
+        this.logger.log(`[FSM] State → ${this.fsm.getState()}`);
         return;
       }
 
-      // Надсилаємо до всіх сусідів
+      // Send to all neighbours
       for (const neighbour of neighbours) {
         const nextHop = this.config.topology.getNextHopUrl(neighbour);
 
@@ -325,13 +372,16 @@ export class Node {
         }
       }
 
+      this.fsm.finish();
+      this.logger.log(`[FSM] State → ${this.fsm.getState()}`);
       return;
     }
 
-    // ✅ Звичайна unicast передача
+    // Unicast transmission
     const nextHop = this.config.topology.getNextHopUrl(target);
     assert(nextHop, `Unreachable: ${target}`);
 
+    let failedCount = 0;
     for (let i = 0; i < total; i++) {
       const chunk = data.substring(i * MTU, (i + 1) * MTU);
       const packet = this.createPacket(target, msgId, chunk, i, total, type);
@@ -343,9 +393,17 @@ export class Node {
       });
 
       if (!response.ok) {
-        this.logger.log(`Chunk ${i} failed to send to ${nextHop}`);
+        failedCount++;
+        this.logger.log(`Chunk ${i} failed to deliver to ${nextHop}`);
       }
     }
+
+    if (failedCount > 0) {
+      this.logger.log(`[TRANSMIT] ${failedCount}/${total} fragment(s) were not acknowledged — handshake/message may fail`);
+    }
+
+    this.fsm.finish();
+    this.logger.log(`[FSM] State → ${this.fsm.getState()}`);
   }
 
   // --- CRYPTO UTILS ---
@@ -397,4 +455,3 @@ export class Node {
 }
 
 export default new Node(new NodeConfig())
-
