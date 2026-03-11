@@ -103,6 +103,12 @@ export class Node {
   }
 
   private async onPacketReceived(packet: NetworkPacket): Promise<Response> {
+    // --- Half-duplex radio: channel is blocked while transmitting ---
+    if (!this.fsm.canReceive()) {
+      this.logger.log(`[CHANNEL BUSY] Packet from ${packet.header.src} to ${packet.header.dest} idx=${packet.header.packetIdx} dropped — node is TRANSMITTING (half-duplex)`);
+      return new Response("Channel Busy", {status: 503});
+    }
+
     // --- Poisson loss simulation on inbound packets ---
     if (this.poissonLoss.shouldDrop()) {
       this.logger.log(`[POISSON DROP] Packet from ${packet.header.src} to ${packet.header.dest} idx=${packet.header.packetIdx}/${packet.header.total - 1} dropped (λ=${this.config.poissonLambda})`);
