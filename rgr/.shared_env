@@ -10,5 +10,4 @@ TOPOLOGY_NEIGHBOURS=a:b,b:c,c:d,c:e
 TOPOLOGY_PORTS=a:6000,b:6001,c:6002,d:6003,e:6004
 
 # Poisson loss model: average error rate (lambda)
-# e.g. 0.3 means ~26% drop probability per packet (P(k>=1; 0.3) = 1 - e^(-0.3))
-POISSON_LAMBDA=0.3
+POISSON_LAMBDA=0.01

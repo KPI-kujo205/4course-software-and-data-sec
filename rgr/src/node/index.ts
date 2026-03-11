@@ -223,7 +223,7 @@ export class Node {
 
   private async handleHandshake(payload: HandshakePayload, from: string) {
     switch (payload.step) {
-      case 'CLIENT_HELLO':
+      case 'CLIENT_HELLO': {
         const serverRandom = crypto.randomBytes(16).toString('hex');
         this.handshakeContexts.set(from, {clientRandom: payload.data, serverRandom});
 
@@ -233,8 +233,9 @@ export class Node {
           certificate: this.certData?.certificate
         }), "HANDSHAKE");
         break;
+      }
 
-      case 'SERVER_HELLO':
+      case 'SERVER_HELLO': {
         assert(payload.certificate, "No certificate provided");
         this.logger.log(`Verifying certificate for ${from}... `);
 
@@ -273,8 +274,9 @@ export class Node {
           data: encryptedPremaster.toString('base64')
         }), "HANDSHAKE");
         break;
+      }
 
-      case 'KEY_EXCHANGE':
+      case 'KEY_EXCHANGE': {
         assert(this.certData?.key, "Private key missing");
 
         const encryptedBuffer = Buffer.from(payload.data, 'base64');
@@ -296,6 +298,7 @@ export class Node {
         this.sessionKeys.set(from, this.deriveSessionKey(decryptedPremaster, sCtx!.clientRandom, sCtx!.serverRandom));
         await this.transmit(from, JSON.stringify({step: 'FINISHED', data: 'READY'}), "HANDSHAKE");
         break;
+      }
 
       case 'FINISHED':
         this.logger.log(`TLS Handshake Complete with ${from}. Channel Secure.`);
@@ -327,7 +330,7 @@ export class Node {
   }
 
   private async transmit(target: string, data: string, type: PacketType, existingMsgId?: string) {
-    const MTU = 50;
+    const MTU = 500;
     const msgId = existingMsgId || crypto.randomUUID();
     const total = Math.ceil(data.length / MTU);
 
