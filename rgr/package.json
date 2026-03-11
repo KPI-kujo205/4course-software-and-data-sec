@@ -6,7 +6,8 @@
     "start-system": "docker compose up --build",
     "start-node": "bun run src/node/index.ts",
     "start-ca": "bun run src/ca_server/index.ts",
-    "initiate-request": "bun run src/initiate-request.ts"
+    "initiate-request": "sh ./request.sh",
+    "broadcast": "sh ./broadcast.sh"
   },
   "author": "",
   "license": "ISC",
